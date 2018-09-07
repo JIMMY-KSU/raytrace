@@ -39,6 +39,14 @@ class TestV3(unittest.TestCase):
                 )
             )
         )
+        self.assertAllEqual(
+            a.repeat(2),
+            V3(
+                np.array([1, 1]),
+                np.array([2, 2]),
+                np.array([3, 3])
+            )
+        )
     
     def test_vectorized(self):
         a = V3(
@@ -124,6 +132,14 @@ class TestV3(unittest.TestCase):
                 np.array([0, 0, 0, 1, 1, 1]),
                 np.array([1, 1, 1, 2, 2, 2]),
                 np.array([2, 2, 2, 3, 3, 3])
+            )
+        )
+        self.assertAllEqual(
+            a.repeat(2),
+            V3(
+                np.array([0, 0, 1, 1]),
+                np.array([1, 1, 2, 2]),
+                np.array([2, 2, 3, 3])
             )
         )
         

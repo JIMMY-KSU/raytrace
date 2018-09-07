@@ -42,6 +42,6 @@ class CameraOrthogonal:
         positions = upper_left + us + vs
         
         # all rays are parallel for an orthogonal camera
-        directions = self.direction.mapToXYZ(lambda axis: np.repeat(axis, area))
+        directions = self.direction.repeat(area)
         
         return (positions, directions)

@@ -82,3 +82,10 @@ class V3:
         np.copyto(self.x, src.x, casting, where)
         np.copyto(self.y, src.y, casting, where)
         np.copyto(self.z, src.z, casting, where)
+    
+    def repeat(self, n):
+        return V3(
+            np.repeat(self.x, n),
+            np.repeat(self.y, n),
+            np.repeat(self.z, n)
+        )

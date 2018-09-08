@@ -26,9 +26,12 @@ class TestRender(unittest.TestCase):
             'objects': [
                 {
                     'geometry': Sphere(V3(4, 0, 0), 1),
-                    'material': BasicMaterial(V3(1.0, 0.5, 0.25))
+                    'material': 'mat'
                 }
             ],
+            'materials': {
+                'mat': UniformMaterial(V3(1.0, 0.5, 0.25))
+            },
             'lighting': {
                 'ambient': 0.5,
                 'directional': V3(1, 0, 0)

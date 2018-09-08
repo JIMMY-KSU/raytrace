@@ -13,13 +13,17 @@ scene = {
     'objects': [
         {
             'geometry': Sphere(V3(4, 0, 0), 1),
-            'material': BasicMaterial(V3(0, 1, 0))
+            'material': 'blue'
         },
         {
             'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
-            'material': BasicMaterial(V3(0, 0, 1))
+            'material': 'green'
         },
     ],
+    'materials': {
+        'blue': UniformMaterial(V3(0, 1, 0)),
+        'green': UniformMaterial(V3(0, 0, 1))
+    },
     'lighting': {
         'ambient': 0.1,
         'directional': V3(1, 1, -1)

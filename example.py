@@ -13,16 +13,16 @@ scene = {
     'objects': [
         {
             'geometry': Sphere(V3(4, 0, 0), 1),
-            'material': 'blue'
+            'material': 'green'
         },
         {
             'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
-            'material': 'green'
+            'material': 'blue'
         },
     ],
     'materials': {
-        'blue': UniformMaterial(V3(0, 1, 0)),
-        'green': UniformMaterial(V3(0, 0, 1))
+        'green': UniformMaterial(V3(0, 1, 0)),
+        'blue': UniformMaterial(V3(0, 0, 1))
     },
     'lighting': {
         'ambient': 0.1,

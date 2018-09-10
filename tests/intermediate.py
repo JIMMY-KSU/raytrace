@@ -48,6 +48,46 @@ class TestRender(unittest.TestCase):
                 0.25 * np.array([0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0])
             )
         )
+    
+    def test_reflection(self):
+        resolution = (3, 3)
+        origin = V3(0, 0, 0)
+        direction = V3(1, 0, 0)
+        dimensions = (5, 5)
+        
+        camera = CameraOrthogonal(origin, direction, dimensions, resolution)
+        
+        scene = {
+            'objects': [
+                {
+                    'geometry': Sphere(V3(4, 0, 0), 1),
+                    'material': 'mirror'
+                },
+                {
+                    'geometry': Sphere(V3(-4, 0, 0), 1),
+                    'material': 'mat'
+                }
+            ],
+            'materials': {
+                'mat': UniformMaterial(V3(1.0, 0.5, 0.25)),
+                'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
+            },
+            'lighting': {
+                'ambient': 0.5,
+                'directional': V3(1, 0, 0)
+            }
+        }
+        
+        raster = render(camera, scene)
+        
+        self.assertAllEqual(
+            raster,
+            V3(
+                0.5 * 1.00 * np.array([0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0]),
+                0.5 * 0.50 * np.array([0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0]),
+                0.5 * 0.25 * np.array([0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0])
+            )
+        )
 
 
 if __name__ == '__main__':

@@ -5,8 +5,9 @@ from .camera import *
 from .geometry import *
 from .material import *
 
-def render(camera, scene):
-    area = camera.resolution[0] * camera.resolution[1]
+def render(camera, scene, bounce = 4):
+    area = camera.area()
+    ray = camera.rays()
     
     nearest_material_index = np.repeat([-1], area)
     distance = np.repeat([np.inf], area)
@@ -28,7 +29,7 @@ def render(camera, scene):
     
     for i, obj in enumerate(scene['objects']):
         material_index = material_indeces[obj['material']]
-        (obj_distance, obj_normal) =  obj['geometry'].intersections(camera.rays())
+        (obj_distance, obj_normal) =  obj['geometry'].intersections(ray)
         mask = obj_distance < distance
         np.place(nearest_material_index, mask, material_index)
         np.copyto(distance, obj_distance, where = mask)
@@ -43,12 +44,27 @@ def render(camera, scene):
     lighting = (directional_component * (1 - ambient_lighting) + ambient_lighting)
     
     matte_component = V3(0.0, 0.0, 0.0).repeat(area)
+    reflective_component = V3(0.0, 0.0, 0.0).repeat(area)
+    
+    reflectivity = np.repeat([0.0], area)
     
     for i, material_name in enumerate(material_list):
         mask = (nearest_material_index == i)
         material = scene['materials'][material_name]
         matte_component.place(mask, material.color)
+        np.place(reflectivity, mask, material.reflectivity)
     
-    raster += matte_component * lighting
+    reflective_mask = (reflectivity > 0.0)
+    if bounce > 0 and reflective_mask.any():
+        position_set = (ray[0] + ray[1] * distance).extract(reflective_mask)
+        incident_set = ray[1].extract(reflective_mask)
+        normal_set = normal.extract(reflective_mask)
+        reflected_set = incident_set - normal_set.unit() * incident_set.dot(normal_set) * 2
+        reflective_camera = CameraPrecomputed((position_set, reflected_set))
+        reflective_component_set = render(reflective_camera, scene, bounce - 1)
+        reflective_component.place(reflective_mask, reflective_component_set)
+    
+    raster += matte_component * lighting * (1.0 - reflectivity)
+    raster += reflective_component * reflectivity
     
     return raster

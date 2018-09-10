@@ -7,6 +7,9 @@ class CameraOrthogonal:
         self.direction = direction
         self.dimensions = dimensions
         self.resolution = resolution
+    
+    def area(self):
+        return self.resolution[0] * self.resolution[1]
         
     def rays(self):
         width = self.resolution[0]
@@ -45,3 +48,14 @@ class CameraOrthogonal:
         directions = self.direction.repeat(area)
         
         return (positions, directions)
+
+class CameraPrecomputed:
+    
+    def __init__(self, precomputed_rays):
+        self.precomputed_rays = precomputed_rays
+    
+    def area(self):
+        return len(self.precomputed_rays[0].x)
+    
+    def rays(self):
+        return self.precomputed_rays

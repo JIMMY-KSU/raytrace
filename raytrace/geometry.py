@@ -1,13 +1,14 @@
 import numpy as np
 from .vector import *
 
+
 class Sphere:
     
     def __init__(self, center, radius):
         self.center = center
         self.radius = radius
         
-    def intersections(self, rays):
+    def intersections(self, rays, invert = False):
         positions =  rays[0]
         directions = rays[1]
         
@@ -27,7 +28,8 @@ class Sphere:
         x_perp_set = x_perp.extract(mask)
         directions_set = directions.extract(mask)
         
-        y_para_set = directions_set.scale(-1 * np.sqrt(self.radius ** 2 - x_perp_set.normsq()))
+        y_para_orientation = 1 if invert else -1
+        y_para_set = directions_set.scale(y_para_orientation * np.sqrt(self.radius ** 2 - x_perp_set.normsq()))
         
         distance = np.repeat(np.inf, len(mask))
         distance_set = (x_para_set - y_para_set).norm()
@@ -36,5 +38,46 @@ class Sphere:
         normal = V3(0.0, 0.0, 0.0).repeat(len(mask))
         normal_set = (x_perp_set + y_para_set).unit()
         normal.place(mask, normal_set)
+        if invert:
+            normal = normal * -1
         
         return (distance, normal)
+    
+    def interior(self, point):
+        x = point - self.center
+        return x.normsq() < self.radius ** 2
+
+
+class Difference:
+    
+    def __init__(self, positive, negative):
+        self.positive = positive
+        self.negative = negative
+    
+    def intersections(self, rays):
+        (distance_p, normal_p) = self.positive.intersections(rays)
+        incident_p = rays[0] + rays[1] * distance_p
+        mask_p = self.negative.interior(incident_p)
+        np.place(distance_p, mask_p, np.inf)
+        
+        (distance_n, normal_n) = self.negative.intersections(rays, invert = True)
+        incident_n = rays[0] + rays[1] * distance_n
+        mask_n = np.logical_not(self.positive.interior(incident_n))
+        np.place(distance_n, mask_n, np.inf)
+        
+        distance = distance_p
+        normal = normal_p
+        
+        mask = distance_n < distance_p
+        np.place(distance, mask, np.extract(mask, distance_n))
+        normal.place(mask, normal_n.extract(mask))
+        
+        return (distance, normal)
+    
+    def interior(self, point):
+        return np.logical_and(
+            self.positive.interior(point),
+            np.logical_not(
+                self.negative.interior(point)
+            )
+        )

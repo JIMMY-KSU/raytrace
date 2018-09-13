@@ -3,16 +3,22 @@ from PIL import Image
 
 
 resolution = (1000, 1000)
-origin = V3(0, 0, 0)
-direction = V3(1, 0, 0)
+origin = V3(0, -6, 0)
+lookat = V3(4, 0, 0)
+direction = (lookat - origin).unit()
 dimensions = (3, 3)
+
+
 
 camera = CameraOrthogonal(origin, direction, dimensions, resolution)
 
 scene = {
     'objects': [
         {
-            'geometry': Sphere(V3(4, 0, 0), 1),
+            'geometry': Difference(
+                Sphere(V3(4, 0, 0), 1),
+                Sphere(V3(4, -1, 0), 0.5)
+            ),
             'material': 'green'
         },
         {

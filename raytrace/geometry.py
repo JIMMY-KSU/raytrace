@@ -81,3 +81,35 @@ class Difference:
                 self.negative.interior(point)
             )
         )
+
+
+class Intersection:
+    
+    def __init__(self, fst, snd):
+        self.fst = fst
+        self.snd = snd
+    
+    def intersections(self, rays):
+        (distance_1, normal_1) = self.fst.intersections(rays)
+        incident_1 = rays[0] + rays[1] * distance_1
+        mask_1 = np.logical_not(self.snd.interior(incident_1))
+        np.place(distance_1, mask_1, np.inf)
+        
+        (distance_2, normal_2) = self.snd.intersections(rays)
+        incident_2 = rays[0] + rays[1] * distance_2
+        mask_2 = np.logical_not(self.fst.interior(incident_2))
+        np.place(distance_2, mask_2, np.inf)
+        
+        distance = distance_1
+        normal = normal_1
+        
+        mask = distance_2 < distance_1
+        np.place(distance, mask, np.extract(mask, distance_2))
+        normal.place(mask, normal_2.extract(mask))
+        
+        return (distance, normal)
+    
+    def interior(self, point):
+        in_fst = self.fst.interior(point)
+        in_snd = self.fst.interior(point)
+        return np.logical_and(in_fst, in_snd)

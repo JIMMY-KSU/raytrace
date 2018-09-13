@@ -3,7 +3,7 @@ from PIL import Image
 
 
 resolution = (1000, 1000)
-origin = V3(0, -6, 0)
+origin = V3(0, -3, 0)
 lookat = V3(4, 0, 0)
 direction = (lookat - origin).unit()
 dimensions = (3, 3)
@@ -16,7 +16,10 @@ scene = {
     'objects': [
         {
             'geometry': Difference(
-                Sphere(V3(4, 0, 0), 1),
+                Intersection(
+                    Sphere(V3(4, 0, 0), 1),
+                    Sphere(V3(4, -1, 0), 1)
+                ),
                 Sphere(V3(4, -1, 0), 0.5)
             ),
             'material': 'green'

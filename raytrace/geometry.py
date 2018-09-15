@@ -111,5 +111,5 @@ class Intersection:
     
     def interior(self, point):
         in_fst = self.fst.interior(point)
-        in_snd = self.fst.interior(point)
+        in_snd = self.snd.interior(point)
         return np.logical_and(in_fst, in_snd)

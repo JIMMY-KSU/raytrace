@@ -54,13 +54,13 @@ class Difference:
         self.positive = positive
         self.negative = negative
     
-    def intersections(self, rays):
-        (distance_p, normal_p) = self.positive.intersections(rays)
+    def intersections(self, rays, invert = False):
+        (distance_p, normal_p) = self.positive.intersections(rays, invert)
         incident_p = rays[0] + rays[1] * distance_p
         mask_p = self.negative.interior(incident_p)
         np.place(distance_p, mask_p, np.inf)
         
-        (distance_n, normal_n) = self.negative.intersections(rays, invert = True)
+        (distance_n, normal_n) = self.negative.intersections(rays, not invert)
         incident_n = rays[0] + rays[1] * distance_n
         mask_n = np.logical_not(self.positive.interior(incident_n))
         np.place(distance_n, mask_n, np.inf)
@@ -89,13 +89,13 @@ class Intersection:
         self.fst = fst
         self.snd = snd
     
-    def intersections(self, rays):
-        (distance_1, normal_1) = self.fst.intersections(rays)
+    def intersections(self, rays, invert = False):
+        (distance_1, normal_1) = self.fst.intersections(rays, invert)
         incident_1 = rays[0] + rays[1] * distance_1
         mask_1 = np.logical_not(self.snd.interior(incident_1))
         np.place(distance_1, mask_1, np.inf)
         
-        (distance_2, normal_2) = self.snd.intersections(rays)
+        (distance_2, normal_2) = self.snd.intersections(rays, invert)
         incident_2 = rays[0] + rays[1] * distance_2
         mask_2 = np.logical_not(self.fst.interior(incident_2))
         np.place(distance_2, mask_2, np.inf)

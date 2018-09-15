@@ -142,8 +142,36 @@ class TestV3(unittest.TestCase):
                 np.array([2, 2, 3, 3])
             )
         )
-        
+
+class TestGeometry(unittest.TestCase):
+    
+    def setUp(self):
+        self.geoms = [
+            Sphere(V3(0, 0, 0), 1),
+            Difference(
+                Sphere(V3(0, 0, 0), 1),
+                Sphere(V3(1, 0, 0), 1)
+            ),
+            Intersection(
+                Sphere(V3(0, 0, 0), 1),
+                Sphere(V3(1, 0, 0), 1)
+            )
+        ]
+    
+    def test_intersection(self):
+        for geom in self.geoms:
+            (d, n) = geom.intersections((V3(0, 0, 0), V3(1, 0, 0)))
+            self.assertEqual(type(d), np.ndarray)
+            self.assertEqual(type(n), V3)
+            
+            (d, n) = geom.intersections((V3(0, 0, 0), V3(1, 0, 0)), invert = True)
+            self.assertEqual(type(d), np.ndarray)
+            self.assertEqual(type(n), V3)
+    
+    def test_interior(self):
+        for geom in self.geoms:
+            result = geom.interior(V3(0, 0, 0))
+            self.assertEqual(type(result), np.ndarray)
 
 if __name__ == '__main__':
     unittest.main()
-        

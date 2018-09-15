@@ -3,9 +3,14 @@ import numpy as np
 class V3:
     
     def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+        if isinstance(x, np.ndarray):
+            self.x = x
+            self.y = y
+            self.z = z
+        else:
+            self.x = np.array([x])
+            self.y = np.array([y])
+            self.z = np.array([z])
     
     def __str__(self):
         return '[\n\t'+str(self.x)+',\n\t'+str(self.y)+',\n\t'+str(self.z)+'\n]'

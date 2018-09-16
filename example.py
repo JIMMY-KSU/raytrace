@@ -3,7 +3,7 @@ from PIL import Image
 
 
 resolution = (1000, 1000)
-origin = V3(0, -3, 0)
+origin = V3(0, -3, 0.5)
 lookat = V3(4, 0, 0)
 direction = (lookat - origin).unit()
 dimensions = (3, 3)
@@ -28,8 +28,13 @@ scene = {
             'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
             'material': 'blue'
         },
+        {
+            'geometry': Ground(V3(0.0, 0.0, 0.0), V3(0.0, -1.0, 1.0)),
+            'material': 'red'
+        }
     ],
     'materials': {
+        'red': UniformMaterial(V3(1, 0, 0)),
         'green': UniformMaterial(V3(0, 1, 0)),
         'blue': UniformMaterial(V3(0, 0, 1))
     },

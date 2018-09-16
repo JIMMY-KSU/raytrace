@@ -2,6 +2,46 @@ import numpy as np
 from .vector import *
 
 
+class Ground:
+    
+    def __init__(self, position, normal):
+        self.normal = normal.unit()
+        self.position = self.normal * position.dot(self.normal)
+    
+    def intersections(self, rays, invert = False):
+        positions = rays[0]
+        directions = rays[1]
+        
+        area = len(positions.x)
+        
+        if invert:
+            return Ground(self.position, self.normal * -1).intersections(rays)
+        
+        else:
+            directions_para = self.normal.dot(directions) * -1
+            positions_para = self.normal.dot(positions) * -1
+            
+            mask = np.logical_and(
+                directions_para > 0,
+                (positions - self.position).dot(self.normal) > 0
+            )
+            
+            directions_para_set = np.extract(mask, directions_para)
+            positions_para_set = np.extract(mask, positions_para)
+            
+            distance_set = (self.position.norm() - positions_para_set) / directions_para_set
+            
+            distance = np.repeat([np.inf], area)
+            normal = self.normal.repeat(area)
+            
+            np.place(distance, mask, distance_set)
+            
+            return (distance, normal)
+    
+    def interior(self, point):
+        return (positions - self.position).dot(self.normal) < 0
+
+
 class Sphere:
     
     def __init__(self, center, radius):

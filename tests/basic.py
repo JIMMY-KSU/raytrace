@@ -172,6 +172,45 @@ class TestGeometry(unittest.TestCase):
         for geom in self.geoms:
             result = geom.interior(V3(0, 0, 0))
             self.assertEqual(type(result), np.ndarray)
+    
+    def test_ground(self):
+        ground = Ground(V3(10, 0, 0), V3(1, 1, 0))
+        self.assertEqual(
+            np.array([np.inf]),
+            ground.intersections((
+                V3(-1000, -100, -10),
+                V3(1, 0, 0)
+            ))[0]
+        )
+        self.assertNotEqual(
+            np.array([np.inf]),
+            ground.intersections((
+                V3(1000, 100, 10),
+                V3(-1, 0, 0)
+            ))[0]
+        )
+        self.assertFalse(ground.interior(V3(11, 0, 0)).any())
+        self.assertTrue(ground.interior(V3(0, -100, -10)).all())
+    
+    def test_sphere(self):
+        sphere = Sphere(V3(100, 100, -100), 10)
+        self.assertEqual(
+            np.array([np.inf]),
+            sphere.intersections((
+                V3(0, 0, 0),
+                V3(1, -1, -1).unit()
+            ))[0]
+        )
+        self.assertNotEqual(
+            np.array([np.inf]),
+            sphere.intersections((
+                V3(0, 0, 0),
+                V3(1, 1, -1).unit()
+            ))[0]
+        )
+        self.assertFalse(sphere.interior(V3(0, 0, 0)).any())
+        self.assertFalse(sphere.interior(V3(110, 110, -100)).any())
+        self.assertTrue(sphere.interior(V3(103, 103, -103)).all())
 
 if __name__ == '__main__':
     unittest.main()

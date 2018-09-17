@@ -39,7 +39,7 @@ class Ground:
             return (distance, normal)
     
     def interior(self, point):
-        return (positions - self.position).dot(self.normal) < 0
+        return (point - self.position).dot(self.normal) < 0
 
 
 class Sphere:

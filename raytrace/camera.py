@@ -55,7 +55,7 @@ class CameraPrecomputed:
         self.precomputed_rays = precomputed_rays
     
     def area(self):
-        return len(self.precomputed_rays[0].x)
+        return len(self.precomputed_rays[0])
     
     def rays(self):
         return self.precomputed_rays

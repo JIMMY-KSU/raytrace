@@ -15,6 +15,14 @@ class TestV3(unittest.TestCase):
         else:
             self.assertTrue((a == b).all())
     
+    def test_init(self):
+        self.assertRaises(ValueError, V3, [1], [1], [1, 2])
+        self.assertRaises(ValueError, V3,
+            np.array([1]),
+            np.array([1]),
+            np.array([[1]])
+        )
+    
     def test_unvectorized(self):
         a = V3(1, 2, 3)
         b = V3(-1, 1, -1)

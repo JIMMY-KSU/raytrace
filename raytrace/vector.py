@@ -3,14 +3,23 @@ import numpy as np
 class V3:
     
     def __init__(self, x, y, z):
-        if isinstance(x, np.ndarray):
-            self.x = x
-            self.y = y
-            self.z = z
+        xx = np.array(x, dtype = np.float64)
+        yy = np.array(y, dtype = np.float64)
+        zz = np.array(z, dtype = np.float64)
+        
+        if xx.shape != yy.shape or xx.shape != zz.shape:
+            raise ValueError('Dimension mismatch.')
+        
+        if len(xx.shape) == 0:
+            self.x = xx.reshape((1))
+            self.y = yy.reshape((1))
+            self.z = zz.reshape((1))
+        elif len(xx.shape) == 1:
+            self.x = xx
+            self.y = yy
+            self.z = zz
         else:
-            self.x = np.array([x])
-            self.y = np.array([y])
-            self.z = np.array([z])
+            raise ValueError('V3 supports only 0d and 1d arrays.')
     
     def __str__(self):
         return '[\n\t'+str(self.x)+',\n\t'+str(self.y)+',\n\t'+str(self.z)+'\n]'
@@ -22,6 +31,9 @@ class V3:
                 and self.z == other.z)
         else:
             return False
+    
+    def __len__(self):
+        return len(self.x)
     
     def allEqual(self, other):
         if isinstance(other, V3):

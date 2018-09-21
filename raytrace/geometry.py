@@ -12,7 +12,7 @@ class Ground:
         positions = rays[0]
         directions = rays[1]
         
-        area = len(positions.x)
+        area = len(positions)
         
         if invert:
             return Ground(self.position, self.normal * -1).intersections(rays)

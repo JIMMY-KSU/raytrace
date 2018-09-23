@@ -6,6 +6,7 @@ import numpy as np
 from raytrace import *
 import unittest
 
+
 class TestRender(unittest.TestCase):
     
     def assertAllEqual(self, a, b):

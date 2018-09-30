@@ -67,11 +67,11 @@ def render(camera, scene, bounce = 4):
     
     reflective_mask = (reflectivity > 0.0)
     if bounce > 0 and reflective_mask.any():
-        position_set = (ray[0] + ray[1] * distance).extract(reflective_mask)
-        incident_set = ray[1].extract(reflective_mask)
+        position_set = ray.trace(distance).extract(reflective_mask)
+        incident_set = ray.v.extract(reflective_mask)
         normal_set = normal.extract(reflective_mask)
         reflected_set = incident_set - normal_set.unit() * incident_set.dot(normal_set) * 2
-        reflective_camera = CameraPrecomputed((position_set, reflected_set))
+        reflective_camera = CameraPrecomputed(Ray(position_set, reflected_set))
         reflective_component_set = render(reflective_camera, scene, bounce - 1)
         reflective_component.place(reflective_mask, reflective_component_set)
     

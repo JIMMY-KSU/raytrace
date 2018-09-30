@@ -47,7 +47,7 @@ class CameraOrthogonal:
         # all rays are parallel for an orthogonal camera
         directions = self.direction.repeat(area)
         
-        return (positions, directions)
+        return Ray(positions, directions)
 
 class CameraPrecomputed:
     
@@ -55,7 +55,7 @@ class CameraPrecomputed:
         self.precomputed_rays = precomputed_rays
     
     def area(self):
-        return len(self.precomputed_rays[0])
+        return len(self.precomputed_rays)
     
     def rays(self):
         return self.precomputed_rays

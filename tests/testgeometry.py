@@ -24,11 +24,11 @@ class TestGeometry(unittest.TestCase):
     
     def test_intersection(self):
         for geom in self.geoms:
-            collisions = geom.intersections((V3(0, 0, 0), V3(1, 0, 0)))
+            collisions = geom.intersections(Ray(V3(0, 0, 0), V3(1, 0, 0)))
             self.assertEqual(type(collisions.dist), np.ndarray)
             self.assertEqual(type(collisions.norm), V3)
             
-            collisions = geom.intersections((V3(0, 0, 0), V3(1, 0, 0)), invert = True)
+            collisions = geom.intersections(Ray(V3(0, 0, 0), V3(1, 0, 0)), invert = True)
             self.assertEqual(type(collisions.dist), np.ndarray)
             self.assertEqual(type(collisions.norm), V3)
     
@@ -41,14 +41,14 @@ class TestGeometry(unittest.TestCase):
         ground = Ground(V3(10, 0, 0), V3(1, 1, 0))
         self.assertEqual(
             np.array([np.inf]),
-            ground.intersections((
+            ground.intersections(Ray(
                 V3(-1000, -100, -10),
                 V3(1, 0, 0)
             )).dist
         )
         self.assertNotEqual(
             np.array([np.inf]),
-            ground.intersections((
+            ground.intersections(Ray(
                 V3(1000, 100, 10),
                 V3(-1, 0, 0)
             )).dist
@@ -60,14 +60,14 @@ class TestGeometry(unittest.TestCase):
         sphere = Sphere(V3(100, 100, -100), 10)
         self.assertEqual(
             np.array([np.inf]),
-            sphere.intersections((
+            sphere.intersections(Ray(
                 V3(0, 0, 0),
                 V3(1, -1, -1).unit()
             )).dist
         )
         self.assertNotEqual(
             np.array([np.inf]),
-            sphere.intersections((
+            sphere.intersections(Ray(
                 V3(0, 0, 0),
                 V3(1, 1, -1).unit()
             )).dist

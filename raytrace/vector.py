@@ -106,3 +106,13 @@ class V3:
             np.repeat(self.y, n),
             np.repeat(self.z, n)
         )
+
+
+class Ray:
+    def __init__(self, r, v):
+        self.r = r
+        self.v = v.unit()
+    def __len__(self):
+        return len(self.r)
+    def trace(self, dist):
+        return self.r + self.v * dist

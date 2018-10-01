@@ -49,6 +49,48 @@ class CameraOrthogonal:
         
         return Ray(positions, directions)
 
+
+class CameraPanoramic:
+    
+    def __init__(self, pos, long_min, long_max, lat_min, lat_max, resolution):
+        self.pos = pos
+        self.long_min = long_min * np.pi / 180.0
+        self.long_max = long_max * np.pi / 180.0
+        if self.long_min > self.long_max:
+            self.long_max += 2 * np.pi
+        self.lat_min = lat_min * np.pi / 180.0
+        self.lat_max = lat_max * np.pi / 180.0
+        self.resolution = resolution
+    
+    def area(self):
+        return self.resolution[0] * self.resolution[1]
+    
+    def rays(self):
+        width = self.resolution[0]
+        height = self.resolution[1]
+        area = width * height
+        
+        dlong = (self.long_max - self.long_min) / width
+        dlat = (self.lat_max - self.lat_min) / height
+        longs = np.tile(
+            np.linspace(self.long_min + 0.5 * dlong, self.long_max - 0.5 * dlong, width),
+            height
+        )
+        lats = np.repeat(
+            np.linspace(self.lat_max - 0.5 * dlat, self.lat_min + 0.5 * dlat, height),
+            width
+        )
+        
+        return Ray(
+            self.pos.repeat(area),
+            V3(
+                np.cos(lats) * np.cos(longs),
+                np.cos(lats) * np.sin(longs),
+                np.sin(lats)
+            )
+        )
+
+
 class CameraPrecomputed:
     
     def __init__(self, precomputed_rays):

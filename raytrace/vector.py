@@ -106,6 +106,13 @@ class V3:
             np.repeat(self.y, n),
             np.repeat(self.z, n)
         )
+    
+    def where(self, use_first, other):
+        return V3(
+            np.where(use_first, self.x, other.x),
+            np.where(use_first, self.y, other.y),
+            np.where(use_first, self.z, other.z)
+        )
 
 
 class Ray:

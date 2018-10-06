@@ -5,33 +5,43 @@ from .camera import *
 from .geometry import *
 from .material import *
 
+
 class CollisionResult:
+    
     def __init__(self, area):
+        self.area = area
+        self.mat_index = np.repeat([-1], area)
         self.dist = np.repeat([np.inf], area)
         self.norm = V3(0, 0, 0).repeat(area)
-    def place(self, mask, dist, norm):
+        self.u = np.repeat([0], area)
+        self.v = np.repeat([0], area)
+        
+    def place(self, mask, dist, norm, u = np.array([0]), v = np.array([0])):
         np.place(self.dist, mask, dist)
         self.norm.place(mask, norm)
+        np.place(self.u, mask, u)
+        np.place(self.v, mask, v)
+        
     def copyfrom(self, mask, other):
+        np.copyto(self.mat_index, other.mat_index, where = mask)
         np.copyto(self.dist, other.dist, where = mask)
         self.norm.copyfrom(other.norm, where = mask)
+        np.copyto(self.u, other.u, where = mask)
+        np.copyto(self.v, other.v, where = mask)
+    
+    def setMatIndex(self, mat_index):
+        self.mat_index = np.repeat([mat_index], self.area)
+    
+    def takeNearer(self, other):
+        mask = other.dist < self.dist
+        self.copyfrom(mask, other)
+
 
 def render(camera, scene, bounce = 4):
     area = camera.area()
     ray = camera.rays()
     
-    nearest_material_index = np.repeat([-1], area)
-    distance = np.repeat([np.inf], area)
-    normal = V3(
-        np.repeat([0.0], area),
-        np.repeat([0.0], area),
-        np.repeat([0.0], area)
-    )
-    raster = V3(
-        np.repeat([0.0], area),
-        np.repeat([0.0], area),
-        np.repeat([0.0], area)
-    )
+    nearest_collisions = CollisionResult(area)
     
     material_list = list(scene['materials'])
     material_indeces = {m: i for i, m in enumerate(material_list)}
@@ -39,19 +49,18 @@ def render(camera, scene, bounce = 4):
     # compute nearest intersections
     
     for i, obj in enumerate(scene['objects']):
-        material_index = material_indeces[obj['material']]
-        collisions = obj['geometry'].intersections(ray)
-        mask = collisions.dist < distance
-        np.place(nearest_material_index, mask, material_index)
-        np.copyto(distance, collisions.dist, where = mask)
-        normal.copyfrom(collisions.norm, where = mask)
+        obj_collisions = obj['geometry'].intersections(ray)
+        obj_collisions.setMatIndex(material_indeces[obj['material']])
+        nearest_collisions.takeNearer(obj_collisions)
     
     # color pixels
+    
+    raster = V3(0, 0, 0).repeat(area)
     
     directional_lighting = scene['lighting']['directional'].unit()
     ambient_lighting = scene['lighting']['ambient']
     
-    directional_component =  np.clip(directional_lighting.dot(normal) * -1, 0, 1)
+    directional_component =  np.clip(directional_lighting.dot(nearest_collisions.norm) * -1, 0, 1)
     lighting = (directional_component * (1 - ambient_lighting) + ambient_lighting)
     
     matte_component = V3(0.0, 0.0, 0.0).repeat(area)
@@ -60,16 +69,16 @@ def render(camera, scene, bounce = 4):
     reflectivity = np.repeat([0.0], area)
     
     for i, material_name in enumerate(material_list):
-        mask = (nearest_material_index == i)
+        mask = (nearest_collisions.mat_index == i)
         material = scene['materials'][material_name]
-        matte_component.place(mask, material.color)
-        np.place(reflectivity, mask, material.reflectivity)
+        matte_component.place(mask, material.getColor())
+        np.place(reflectivity, mask, material.getReflectivity())
     
     reflective_mask = (reflectivity > 0.0)
     if bounce > 0 and reflective_mask.any():
-        position_set = ray.trace(distance).extract(reflective_mask)
+        position_set = ray.trace(nearest_collisions.dist).extract(reflective_mask)
         incident_set = ray.v.extract(reflective_mask)
-        normal_set = normal.extract(reflective_mask)
+        normal_set = nearest_collisions.norm.extract(reflective_mask)
         reflected_set = incident_set - normal_set.unit() * incident_set.dot(normal_set) * 2
         reflective_camera = CameraPrecomputed(Ray(position_set, reflected_set))
         reflective_component_set = render(reflective_camera, scene, bounce - 1)

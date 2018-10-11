@@ -73,8 +73,11 @@ class Sphere:
         if invert:
             normal_set = normal_set * -1
         
+        u_set = np.arctan2(normal_set.y, normal_set.x) / (2.0 * np.pi)
+        v_set = np.arccos(normal_set.z) / np.pi
+        
         collisions = CollisionResult(area)
-        collisions.place(mask, distance_set, normal_set)
+        collisions.place(mask, distance_set, normal_set, u_set, v_set)
         
         return collisions
     

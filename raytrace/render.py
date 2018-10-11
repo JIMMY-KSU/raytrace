@@ -13,8 +13,8 @@ class CollisionResult:
         self.mat_index = np.repeat([-1], area)
         self.dist = np.repeat([np.inf], area)
         self.norm = V3(0, 0, 0).repeat(area)
-        self.u = np.repeat([0], area)
-        self.v = np.repeat([0], area)
+        self.u = np.repeat([0.0], area)
+        self.v = np.repeat([0.0], area)
         
     def place(self, mask, dist, norm, u = np.array([0]), v = np.array([0])):
         np.place(self.dist, mask, dist)
@@ -71,8 +71,10 @@ def render(camera, scene, bounce = 4):
     for i, material_name in enumerate(material_list):
         mask = (nearest_collisions.mat_index == i)
         material = scene['materials'][material_name]
-        matte_component.place(mask, material.getColor())
-        np.place(reflectivity, mask, material.getReflectivity())
+        u = np.extract(mask, nearest_collisions.u)
+        v = np.extract(mask, nearest_collisions.v)
+        matte_component.place(mask, material.getColor(u, v))
+        np.place(reflectivity, mask, material.getReflectivity(u, v))
     
     reflective_mask = (reflectivity > 0.0)
     if bounce > 0 and reflective_mask.any():

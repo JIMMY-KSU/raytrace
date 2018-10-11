@@ -26,17 +26,22 @@ scene = {
         },
         {
             'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
-            'material': 'blue'
+            'material': 'checkered'
         },
         {
-            'geometry': Ground(V3(0.0, 0.0, 0.0), V3(0.0, -1.0, 1.0)),
+            'geometry': Ground(V3(0.0, 0.0, -20.0), V3(0.0, 0, 1.0)),
             'material': 'red'
         }
     ],
     'materials': {
         'red': UniformMaterial(V3(1, 0, 0)),
         'green': UniformMaterial(V3(0, 1, 0)),
-        'blue': UniformMaterial(V3(0, 0, 1))
+        'blue': UniformMaterial(V3(0, 0, 1)),
+        'checkered': CheckeredMaterial(
+            UniformMaterial(V3(1, 1, 1)),
+            UniformMaterial(V3(0, 0, 0)),
+            scale = 0.5
+        )
     },
     'lighting': {
         'ambient': 0.1,

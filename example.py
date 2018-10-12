@@ -7,9 +7,9 @@ resolution = (1000, 1000)
 origin = V3(0, -3, 0.5)
 lookat = V3(4, 0, 0)
 direction = (lookat - origin).unit()
-dimensions = (3, 3)
+dimensions = (1, 1)
 
-camera = CameraOrthogonal(origin, direction, dimensions, resolution)
+camera = CameraPerspective(origin, direction, dimensions, resolution)
 #camera = CameraPanoramic(origin, 0, 360, -90, 90, resolution)
 
 
@@ -30,7 +30,7 @@ scene = {
             'material': 'mirror'
         },
         {
-            'geometry': Ground(V3(0.0, 0.0, -20.0), V3(0.0, 0, 1.0)),
+            'geometry': Ground(V3(0, 0, -20), V3(0, 0, 1)),
             'material': 'checkered'
         }
     ],
@@ -41,7 +41,7 @@ scene = {
         'checkered': CheckeredMaterial(
             UniformMaterial(V3(1, 1, 1)),
             UniformMaterial(V3(0, 0, 0)),
-            scale = 2.0
+            scale = 10.0
         ),
         'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
     },

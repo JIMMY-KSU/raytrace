@@ -1,10 +1,60 @@
 from .vector import *
 
+
+class CameraPerspective:
+    
+    def __init__(self, position, direction, dimensions, resolution):
+        self.position = position
+        self.direction = direction.unit()
+        self.dimensions = dimensions
+        self.resolution = resolution
+    
+    def area(self):
+        return self.resolution[0] * self.resolution[1]
+        
+    def rays(self):
+        width = self.resolution[0]
+        height = self.resolution[1]
+        area = width * height
+        
+        # unit directions on screen
+        right = self.direction.cross(V3(0, 0, 1)).unit()
+        down =  self.direction.cross(right).unit()
+        
+        # unit directions in pixel units
+        du = right.scale(self.dimensions[0] / self.resolution[0])
+        dv = down.scale(self.dimensions[1] / self.resolution[1])
+        
+        upper_left = (self.position
+                   + right.scale(-0.5 * self.dimensions[0])
+                   + down.scale(-0.5 * self.dimensions[1])
+                   + self.direction)
+        
+        # displacements relative to upper left corner per pixel
+        us = du.scale(
+            np.tile(
+                np.arange(0.5, width  + 0.5, 1),
+                height
+            )
+        )
+        vs = dv.scale(
+            np.repeat(
+                np.arange(0.5, height + 0.5, 1),
+                width
+            )
+        )
+        
+        positions = self.position.repeat(area)
+        directions = (upper_left + us + vs - self.position).unit()
+        
+        return Ray(positions, directions)
+
+
 class CameraOrthogonal:
     
     def __init__(self, position, direction, dimensions, resolution):
         self.position = position
-        self.direction = direction
+        self.direction = direction.unit()
         self.dimensions = dimensions
         self.resolution = resolution
     

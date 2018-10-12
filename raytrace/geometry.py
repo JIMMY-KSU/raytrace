@@ -65,7 +65,10 @@ class Sphere:
         x_perp = x - x_para
         
         mask = np.logical_and(
-            x.normsq() > self.radius**2,
+            np.logical_or(
+                x.normsq() > self.radius**2,
+                invert
+            ),
             np.logical_and(
                 x_perp.normsq() <= self.radius**2,
                 x.dot(ray.v) < 0

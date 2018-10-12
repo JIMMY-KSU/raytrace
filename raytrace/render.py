@@ -37,10 +37,7 @@ class CollisionResult:
         self.copyfrom(mask, other)
 
 
-def render(camera, scene, bounce = 4):
-    area = camera.area()
-    ray = camera.rays()
-    
+def collide(area, ray, scene):
     nearest_collisions = CollisionResult(area)
     
     material_list = list(scene['materials'])
@@ -53,14 +50,32 @@ def render(camera, scene, bounce = 4):
         obj_collisions.setMatIndex(material_indeces[obj['material']])
         nearest_collisions.takeNearer(obj_collisions)
     
-    # color pixels
+    return nearest_collisions
+
+
+def render(camera, scene, bounce = 4):
+    area = camera.area()
+    ray = camera.rays()
+    
+    material_list = list(scene['materials'])
+    material_indeces = {m: i for i, m in enumerate(material_list)}
+    
+    nearest_collisions = collide(area, ray, scene)
+    
+    # lighting and texturing
     
     raster = V3(0, 0, 0).repeat(area)
     
     directional_lighting = scene['lighting']['directional'].unit()
-    ambient_lighting = scene['lighting']['ambient']
+    shadow_ray = Ray(
+        ray.trace(nearest_collisions.dist),
+        (directional_lighting * -1).repeat(area)
+    )
+    shadow_collisions = collide(area, shadow_ray, scene)
+    shadow_mask = (shadow_collisions.dist == np.inf)
+    directional_component =  shadow_mask * np.clip(directional_lighting.dot(nearest_collisions.norm) * -1, 0, 1)
     
-    directional_component =  np.clip(directional_lighting.dot(nearest_collisions.norm) * -1, 0, 1)
+    ambient_lighting = scene['lighting']['ambient']
     lighting = (directional_component * (1 - ambient_lighting) + ambient_lighting)
     
     matte_component = V3(0.0, 0.0, 0.0).repeat(area)

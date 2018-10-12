@@ -1,5 +1,6 @@
 from raytrace import *
 from PIL import Image
+import numpy as np
 
 
 resolution = (1000, 1000)
@@ -8,9 +9,9 @@ lookat = V3(4, 0, 0)
 direction = (lookat - origin).unit()
 dimensions = (3, 3)
 
-
-
 camera = CameraOrthogonal(origin, direction, dimensions, resolution)
+#camera = CameraPanoramic(origin, 0, 360, -90, 90, resolution)
+
 
 scene = {
     'objects': [

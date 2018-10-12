@@ -73,7 +73,7 @@ class CameraPanoramic:
         dlong = (self.long_max - self.long_min) / width
         dlat = (self.lat_max - self.lat_min) / height
         longs = np.tile(
-            np.linspace(self.long_min + 0.5 * dlong, self.long_max - 0.5 * dlong, width),
+            np.linspace(self.long_max - 0.5 * dlong, self.long_min + 0.5 * dlong, width),
             height
         )
         lats = np.repeat(

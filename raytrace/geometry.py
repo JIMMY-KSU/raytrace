@@ -30,8 +30,20 @@ class Ground:
             distance_set = (self.position.norm() - positions_para_set) / directions_para_set
             normal_set = self.normal.repeat(len(distance_set))
             
+            if self.normal.allEqual(V3(1, 0, 0)):
+                udir = V3(0, 1, 0)
+                vdir = V3(0, 0, 1)
+            else:
+                udir = V3(0, 1, 0).cross(self.normal).unit()
+                vdir = self.normal.cross(udir)
+            
+            ray_set = ray.extract(mask)
+            incident_set = ray_set.trace(distance_set) - self.position
+            u_set = incident_set.dot(udir)
+            v_set = incident_set.dot(vdir)
+            
             collisions = CollisionResult(area)
-            collisions.place(mask, distance_set, normal_set)
+            collisions.place(mask, distance_set, normal_set, u_set, v_set)
             
             return collisions
     

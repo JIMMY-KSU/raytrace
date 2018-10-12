@@ -123,3 +123,8 @@ class Ray:
         return len(self.r)
     def trace(self, dist):
         return self.r + self.v * dist
+    def extract(self, mask):
+        return Ray(
+            self.r.extract(mask),
+            self.v.extract(mask)
+        )

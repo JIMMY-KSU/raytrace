@@ -26,11 +26,11 @@ scene = {
         },
         {
             'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
-            'material': 'checkered'
+            'material': 'mirror'
         },
         {
             'geometry': Ground(V3(0.0, 0.0, -20.0), V3(0.0, 0, 1.0)),
-            'material': 'red'
+            'material': 'checkered'
         }
     ],
     'materials': {
@@ -40,8 +40,9 @@ scene = {
         'checkered': CheckeredMaterial(
             UniformMaterial(V3(1, 1, 1)),
             UniformMaterial(V3(0, 0, 0)),
-            scale = 0.5
-        )
+            scale = 2.0
+        ),
+        'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
     },
     'lighting': {
         'ambient': 0.1,

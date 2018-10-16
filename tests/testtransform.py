@@ -39,3 +39,40 @@ class TestTranslationHelper(unittest.TestCase):
         for before, after in cases:
             self.assertTrue(self.transformation.applyToNormal(before) == after)
             self.assertTrue(self.inverse.applyToNormal(after) == before)
+
+
+class TestScalingHelper(unittest.TestCase):
+    
+    def setUp(self):
+        self.transformation = ScalingHelper(V3(-1, 1, 2))
+        self.inverse = self.transformation.inverse()
+    
+    def test_apply(self):
+        cases = [
+            (V3(0, 0, 0), V3(0, 0, 0)),
+            (V3(1, 1, 1), V3(-1, 1, 2)),
+            (V3(1, 2, 3), V3(-1, 2, 6))
+        ]
+        for before, after in cases:
+            self.assertTrue(self.transformation.apply(before) == after)
+            self.assertTrue(self.inverse.apply(after) == before)
+    
+    def test_applyToDifference(self):
+        cases = [
+            (V3(0, 0, 0), V3(0, 0, 0)),
+            (V3(1, 1, 1), V3(-1, 1, 2)),
+            (V3(1, 2, 3), V3(-1, 2, 6))
+        ]
+        for before, after in cases:
+            self.assertTrue(self.transformation.applyToDifference(before) == after)
+            self.assertTrue(self.inverse.applyToDifference(after) == before)
+    
+    def test_applyToNormal(self):
+        cases = [
+            (V3(1, 0, 0).unit(), V3(-1, 0, 0).unit()),
+            (V3(1, 1, 1).unit(), V3(-1, 1, 2).unit()),
+            (V3(1, 2, 3).unit(), V3(-1, 2, 6).unit())
+        ]
+        for before, after in cases:
+            self.assertTrue(self.transformation.applyToNormal(before) == after)
+            self.assertTrue(self.inverse.applyToNormal(after) == before)

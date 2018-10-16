@@ -4,6 +4,7 @@ from .vector import *
 from .camera import *
 from .geometry import *
 from .material import *
+from .transform import *
 
 
 class CollisionResult:

@@ -26,9 +26,11 @@ class V3:
     
     def __eq__(self, other):
         if isinstance(other, V3):
-            return (np.abs(self.x - other.x) < 1e-14
-                and np.abs(self.y - other.y) < 1e-14
-                and np.abs(self.z - other.z) < 1e-14)
+            return np.logical_and(
+                np.abs(self.x - other.x) < 1e-14,
+                np.abs(self.y - other.y) < 1e-14,
+                np.abs(self.z - other.z) < 1e-14
+            )
         else:
             return False
     

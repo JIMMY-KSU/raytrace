@@ -76,3 +76,21 @@ class TestScalingHelper(unittest.TestCase):
         for before, after in cases:
             self.assertTrue(self.transformation.applyToNormal(before) == after)
             self.assertTrue(self.inverse.applyToNormal(after) == before)
+
+
+class TestRotationHelper(unittest.TestCase):
+    
+    def assertAllTrue(self, v):
+        self.assertTrue(v.all())
+    
+    def test_all(self):
+        def ntimes(n, f, x):
+            for i in range(n):
+                x = f(x)
+            return x
+        for axis in range(3):
+            v = V3(np.random.rand(10), np.random.rand(10), np.random.rand(10))
+            n = int((np.random.rand(1) * 10) // 1 + 1)
+            rot = RotationHelper(axis, np.pi / n)
+            self.assertAllTrue(ntimes(2*n, lambda x: rot.apply(x), v) == v)
+            self.assertAllTrue(ntimes(2*n, lambda x: rot.inverse().apply(x), v) == v)

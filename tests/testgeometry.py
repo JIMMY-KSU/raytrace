@@ -11,6 +11,7 @@ class TestGeometry(unittest.TestCase):
     
     def setUp(self):
         self.geoms = [
+            Ground(V3(1, 1, 1), V3(1, 0, 0)),
             Sphere(V3(0, 0, 0), 1),
             Difference(
                 Sphere(V3(0, 0, 0), 1),
@@ -19,7 +20,8 @@ class TestGeometry(unittest.TestCase):
             Intersection(
                 Sphere(V3(0, 0, 0), 1),
                 Sphere(V3(1, 0, 0), 1)
-            )
+            ),
+            Translation(V3(0, 1, 1), Sphere(V3(0, 0, 0), 1))
         ]
     
     def test_intersection(self):

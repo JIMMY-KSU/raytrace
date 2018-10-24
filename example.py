@@ -26,7 +26,10 @@ scene = {
             'material': 'green'
         },
         {
-            'geometry': Sphere(V3(4, -0.8, 0.8), 0.5),
+            'geometry': Translation(
+                V3(0, 1, 0),
+                Sphere(V3(4, -0.8, 0.8), 0.5)
+            ),
             'material': 'mirror'
         },
         {

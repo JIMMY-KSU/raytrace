@@ -130,3 +130,8 @@ class Ray:
             self.r.extract(mask),
             self.v.extract(mask)
         )
+    def transform(self, transform):
+        return Ray(
+            transform.apply(self.r),
+            transform.applyToNormal(self.v)
+        )

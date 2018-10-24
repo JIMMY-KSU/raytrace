@@ -36,6 +36,15 @@ class CollisionResult:
     def takeNearer(self, other):
         mask = other.dist < self.dist
         self.copyfrom(mask, other)
+    
+    def transform(self, transform):
+        result = CollisionResult(self.area)
+        result.mat_index = self.mat_index
+        result.dist = self.dist
+        result.norm = transform.applyToNormal(self.norm)
+        result.u = self.u
+        result.v = self.v
+        return result
 
 
 def collide(area, ray, scene):

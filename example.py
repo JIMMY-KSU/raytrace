@@ -26,8 +26,8 @@ scene = {
             'material': 'green'
         },
         {
-            'geometry': Translation(
-                V3(0, 1, 0),
+            'geometry': Scaling(
+                V3(0.5, 0.5, 1),
                 Sphere(V3(4, -0.8, 0.8), 0.5)
             ),
             'material': 'mirror'
@@ -42,7 +42,7 @@ scene = {
         'green': UniformMaterial(V3(0, 1, 0)),
         'blue': UniformMaterial(V3(0, 0, 1)),
         'checkered': CheckeredMaterial(
-            UniformMaterial(V3(1, 1, 1)),
+            UniformMaterial(V3(0.8, 0.8, 0.8)),
             UniformMaterial(V3(0, 0, 0)),
             scale = 10.0
         ),

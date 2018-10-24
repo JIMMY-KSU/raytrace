@@ -21,7 +21,9 @@ class TestGeometry(unittest.TestCase):
                 Sphere(V3(0, 0, 0), 1),
                 Sphere(V3(1, 0, 0), 1)
             ),
-            Translation(V3(0, 1, 1), Sphere(V3(0, 0, 0), 1))
+            Translation(V3(0, 1, 1), Sphere(V3(0, 0, 0), 1)),
+            Scaling(V3(2, 1, -1), Sphere(V3(0, 0, 0), 1)),
+            Rotation(0, np.pi, Sphere(V3(0, 0, 0), 1))
         ]
     
     def test_intersection(self):

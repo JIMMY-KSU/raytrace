@@ -164,12 +164,7 @@ class Intersection:
         return np.logical_and(in_fst, in_snd)
 
 
-class Translation:
-    
-    def __init__(self, delta, obj):
-        self.transform = TranslationHelper(delta)
-        self.inverse = self.transform.inverse()
-        self.obj = obj
+class Transformation:
     
     def intersections(self, ray, invert = False):
         ray_p = ray.transform(self.inverse)
@@ -180,3 +175,27 @@ class Translation:
     def interior(self, point):
         point_p = self.inverse.apply(point)
         return self.obj.interior(point_p)
+
+
+class Translation(Transformation):
+    
+    def __init__(self, delta, obj):
+        self.transform = TranslationHelper(delta)
+        self.inverse = self.transform.inverse()
+        self.obj = obj
+
+
+class Scaling(Transformation):
+    
+    def __init__(self, factor, obj):
+        self.transform = ScalingHelper(factor)
+        self.inverse = self.transform.inverse()
+        self.obj = obj
+
+
+class Rotation(Transformation):
+    
+    def __init__(self, axisIndex, angle, obj):
+        self.transform = RotationHelper(axisIndex, angle)
+        self.inverse = self.transform.inverse()
+        self.obj = obj

@@ -43,7 +43,7 @@ class Ground:
             v_set = incident_set.dot(vdir)
             
             collisions = CollisionResult(area)
-            collisions.place(mask, incident_set, normal_set, u_set, v_set)
+            collisions.place(mask, incident_set + self.position, normal_set, u_set, v_set)
             
             return collisions
     
@@ -118,7 +118,7 @@ class Union:
     def interior(self, point):
         interior_fst = self.fst.interior(point)
         interior_snd = self.snd.interior(point)
-        return np.logical_and(interior_fst, interior_snd)
+        return np.logical_or(interior_fst, interior_snd)
 
 
 class Difference:
@@ -137,9 +137,7 @@ class Difference:
         collisions_n.incd.place(mask_n, V3(np.inf, np.inf, np.inf))
         
         collisions = collisions_p
-        
-        mask = collisions_n.incd.normsq() < collisions_p.incd.normsq()
-        collisions.copyfrom(mask, collisions_n)
+        collisions.takeNearer(collisions_n)
         
         return collisions
     

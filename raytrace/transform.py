@@ -45,7 +45,7 @@ class ScalingHelper:
         return self.apply(v)
     
     def applyToNormal(self, v):
-        return self.apply(v).unit()
+        return self.inverse().apply(v).unit()
 
 
 class RotationHelper:

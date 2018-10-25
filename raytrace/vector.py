@@ -133,5 +133,5 @@ class Ray:
     def transform(self, transform):
         return Ray(
             transform.apply(self.r),
-            transform.applyToNormal(self.v)
+            transform.apply(self.v).unit()
         )

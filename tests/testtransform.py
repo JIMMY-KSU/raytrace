@@ -69,9 +69,9 @@ class TestScalingHelper(unittest.TestCase):
     
     def test_applyToNormal(self):
         cases = [
-            (V3(1, 0, 0).unit(), V3(-1, 0, 0).unit()),
-            (V3(1, 1, 1).unit(), V3(-1, 1, 2).unit()),
-            (V3(1, 2, 3).unit(), V3(-1, 2, 6).unit())
+            (V3(-1, 0, 0).unit(), V3(1, 0, 0).unit()),
+            (V3(-1, 1, 2).unit(), V3(1, 1, 1).unit()),
+            (V3(-1, 2, 6).unit(), V3(1, 2, 3).unit())
         ]
         for before, after in cases:
             self.assertTrue(self.transformation.applyToNormal(before) == after)

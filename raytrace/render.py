@@ -70,48 +70,38 @@ def render(camera, scene, bounce = 4):
     material_list = list(scene['materials'])
     material_indeces = {m: i for i, m in enumerate(material_list)}
     
-    nearest_collisions = collide(area, ray, scene)
+    collisions = collide(area, ray, scene)
     
     # lighting and texturing
     
-    raster = V3(0, 0, 0).repeat(area)
+    lighting = V3(0, 0, 0).repeat(area)
+    for light in scene['lighting']:
+        lighting += light.illuminate(scene, collisions)
     
-    directional_lighting = scene['lighting']['directional'].unit()
-    shadow_ray = Ray(
-        nearest_collisions.incd,
-        (directional_lighting * -1).repeat(area)
-    )
-    shadow_collisions = collide(area, shadow_ray, scene)
-    shadow_mask = (shadow_collisions.incd.normsq() == np.inf)
-    directional_component =  shadow_mask * np.clip(directional_lighting.dot(nearest_collisions.norm) * -1, 0, 1)
+    matte_component = V3(0, 0, 0).repeat(area)
+    reflective_component = V3(0, 0, 0).repeat(area)
     
-    ambient_lighting = scene['lighting']['ambient']
-    lighting = (directional_component * (1 - ambient_lighting) + ambient_lighting)
-    
-    matte_component = V3(0.0, 0.0, 0.0).repeat(area)
-    reflective_component = V3(0.0, 0.0, 0.0).repeat(area)
-    
-    reflectivity = np.repeat([0.0], area)
-    
+    frac_reflective = np.repeat([0.0], area)
     for i, material_name in enumerate(material_list):
-        mask = (nearest_collisions.mat_index == i)
+        mask = (collisions.mat_index == i)
         material = scene['materials'][material_name]
-        u = np.extract(mask, nearest_collisions.u)
-        v = np.extract(mask, nearest_collisions.v)
+        u = np.extract(mask, collisions.u)
+        v = np.extract(mask, collisions.v)
         matte_component.place(mask, material.getColor(u, v))
-        np.place(reflectivity, mask, material.getReflectivity(u, v))
+        np.place(frac_reflective, mask, material.getReflectivity(u, v))
     
-    reflective_mask = (reflectivity > 0.0)
+    reflective_mask = (frac_reflective > 0.0)
     if bounce > 0 and reflective_mask.any():
-        position_set = nearest_collisions.incd.extract(reflective_mask)
+        position_set = collisions.incd.extract(reflective_mask)
         incident_set = ray.v.extract(reflective_mask)
-        normal_set = nearest_collisions.norm.extract(reflective_mask)
+        normal_set = collisions.norm.extract(reflective_mask)
         reflected_set = incident_set - normal_set.unit() * incident_set.dot(normal_set) * 2
         reflective_camera = CameraPrecomputed(Ray(position_set, reflected_set))
         reflective_component_set = render(reflective_camera, scene, bounce - 1)
         reflective_component.place(reflective_mask, reflective_component_set)
     
-    raster += matte_component * lighting * (1.0 - reflectivity)
-    raster += reflective_component * reflectivity
+    raster = V3(0, 0, 0).repeat(area)
+    raster += matte_component * lighting * (1.0 - frac_reflective)
+    raster += reflective_component * frac_reflective
     
-    return raster
+    return raster.clip(0, 1)

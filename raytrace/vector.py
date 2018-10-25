@@ -115,6 +115,13 @@ class V3:
             np.where(use_first, self.y, other.y),
             np.where(use_first, self.z, other.z)
         )
+    
+    def clip(self, mn, mx):
+        return V3(
+            np.clip(self.x, mn, mx),
+            np.clip(self.y, mn, mx),
+            np.clip(self.z, mn, mx)
+        )
 
 
 class Ray:

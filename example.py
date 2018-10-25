@@ -48,10 +48,10 @@ scene = {
         ),
         'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
     },
-    'lighting': {
-        'ambient': 0.1,
-        'directional': V3(1, 1, -1)
-    }
+    'lighting': [
+        AmbientLight(0.1),
+        DirectionalLight(V3(1, 1, -1))
+    ]
 }
 
 raster = render(camera, scene) * 255

@@ -33,10 +33,10 @@ class TestRender(unittest.TestCase):
             'materials': {
                 'mat': UniformMaterial(V3(1.0, 0.5, 0.25))
             },
-            'lighting': {
-                'ambient': 0.5,
-                'directional': V3(1, 0, 0)
-            }
+            'lighting': [
+                AmbientLight(0.5),
+                DirectionalLight(V3(1, 0, 0), 0.5)
+            ]
         }
         
         raster = render(camera, scene)
@@ -73,10 +73,10 @@ class TestRender(unittest.TestCase):
                 'mat': UniformMaterial(V3(1.0, 0.5, 0.25)),
                 'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
             },
-            'lighting': {
-                'ambient': 0.5,
-                'directional': V3(1, 0, 0)
-            }
+            'lighting': [
+                AmbientLight(0.5),
+                DirectionalLight(V3(1, 0, 0), 0.5)
+            ]
         }
         
         raster = render(camera, scene)

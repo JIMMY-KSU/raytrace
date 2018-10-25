@@ -43,7 +43,7 @@ class Ground:
             v_set = incident_set.dot(vdir)
             
             collisions = CollisionResult(area)
-            collisions.place(mask, distance_set, normal_set, u_set, v_set)
+            collisions.place(mask, incident_set, normal_set, u_set, v_set)
             
             return collisions
     
@@ -77,12 +77,13 @@ class Sphere:
         
         x_para_set = x_para.extract(mask)
         x_perp_set = x_perp.extract(mask)
-        directions_set = ray.v.extract(mask)
+        ray_set = ray.extract(mask)
         
         y_para_orientation = 1 if invert else -1
-        y_para_set = directions_set.scale(y_para_orientation * np.sqrt(self.radius ** 2 - x_perp_set.normsq()))
+        y_para_set = ray_set.v.scale(y_para_orientation * np.sqrt(self.radius ** 2 - x_perp_set.normsq()))
         
         distance_set = (x_para_set - y_para_set).norm()
+        incident_set = ray_set.trace(distance_set)
         
         normal_set = (x_perp_set + y_para_set).unit()
         if invert:
@@ -92,7 +93,7 @@ class Sphere:
         v_set = np.arccos(normal_set.z) / np.pi
         
         collisions = CollisionResult(area)
-        collisions.place(mask, distance_set, normal_set, u_set, v_set)
+        collisions.place(mask, incident_set, normal_set, u_set, v_set)
         
         return collisions
     
@@ -128,18 +129,16 @@ class Difference:
     
     def intersections(self, ray, invert = False):
         collisions_p = self.positive.intersections(ray, invert)
-        incident_p = ray.trace(collisions_p.dist)
-        mask_p = self.negative.interior(incident_p)
-        np.place(collisions_p.dist, mask_p, np.inf)
+        mask_p = self.negative.interior(collisions_p.incd)
+        collisions_p.incd.place(mask_p, V3(np.inf, np.inf, np.inf))
         
         collisions_n = self.negative.intersections(ray, not invert)
-        incident_n = ray.trace(collisions_n.dist)
-        mask_n = np.logical_not(self.positive.interior(incident_n))
-        np.place(collisions_n.dist, mask_n, np.inf)
+        mask_n = np.logical_not(self.positive.interior(collisions_n.incd))
+        collisions_n.incd.place(mask_n, V3(np.inf, np.inf, np.inf))
         
         collisions = collisions_p
         
-        mask = collisions_n.dist < collisions_p.dist
+        mask = collisions_n.incd.normsq() < collisions_p.incd.normsq()
         collisions.copyfrom(mask, collisions_n)
         
         return collisions
@@ -161,18 +160,16 @@ class Intersection:
     
     def intersections(self, ray, invert = False):
         collisions_1 = self.fst.intersections(ray, invert)
-        incident_1 = ray.trace(collisions_1.dist)
-        mask_1 = np.logical_not(self.snd.interior(incident_1))
-        np.place(collisions_1.dist, mask_1, np.inf)
+        mask_1 = np.logical_not(self.snd.interior(collisions_1.incd))
+        collisions_1.incd.place(mask_1, V3(np.inf, np.inf, np.inf))
         
         collisions_2 = self.snd.intersections(ray, invert)
-        incident_2 = ray.trace(collisions_2.dist)
-        mask_2 = np.logical_not(self.fst.interior(incident_2))
-        np.place(collisions_2.dist, mask_2, np.inf)
+        mask_2 = np.logical_not(self.fst.interior(collisions_2.incd))
+        collisions_2.incd.place(mask_2, V3(np.inf, np.inf, np.inf))
         
         collisions = collisions_1
         
-        mask = collisions_2.dist < collisions_1.dist
+        mask = collisions_2.incd.normsq() < collisions_1.incd.normsq()
         collisions.copyfrom(mask, collisions_2)
         
         return collisions

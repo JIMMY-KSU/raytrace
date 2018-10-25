@@ -13,6 +13,10 @@ class TestGeometry(unittest.TestCase):
         self.geoms = [
             Ground(V3(1, 1, 1), V3(1, 0, 0)),
             Sphere(V3(0, 0, 0), 1),
+            Union(
+                Sphere(V3(0, 0, 0), 1),
+                Sphere(V3(1, 0, 0), 1)
+            ),
             Difference(
                 Sphere(V3(0, 0, 0), 1),
                 Sphere(V3(1, 0, 0), 1)

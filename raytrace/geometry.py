@@ -101,6 +101,25 @@ class Sphere:
         return x.normsq() < self.radius ** 2
 
 
+class Union:
+    
+    def __init__(self, fst, snd):
+        self.fst = fst
+        self.snd = snd
+    
+    def intersections(self, ray, invert = False):
+        collisions_fst = self.fst.intersections(ray, invert)
+        collisions_snd = self.snd.intersections(ray, invert)
+        collisions = collisions_fst
+        collisions.takeNearer(collisions_snd)
+        return collisions
+    
+    def interior(self, point):
+        interior_fst = self.fst.interior(point)
+        interior_snd = self.snd.interior(point)
+        return np.logical_and(interior_fst, interior_snd)
+
+
 class Difference:
     
     def __init__(self, positive, negative):

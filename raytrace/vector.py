@@ -59,7 +59,13 @@ class V3:
             return V3(self.x * other.x, self.y * other.y, self.z * other.z)
         else:
             return V3(self.x * other, self.y * other, self.z * other)
-        
+    
+    def __truediv__(self, other):
+        if isinstance(other, V3):
+            return V3(self.x / other.x, self.y / other.y, self.z / other.z)
+        else:
+            return V3(self.x / other, self.y / other, self.z / other)
+    
     def scale(self, scalar):
         return V3(scalar * self.x, scalar * self.y, scalar * self.z)
         

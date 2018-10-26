@@ -11,7 +11,7 @@ dimensions = (1, 1)
 
 camera = CameraPerspective(origin, direction, dimensions, resolution)
 #camera = CameraPanoramic(origin, 0, 360, -90, 90, resolution)
-
+#np.seterr(all='raise')
 
 scene = {
     'objects': [
@@ -26,10 +26,7 @@ scene = {
             'material': 'green'
         },
         {
-            'geometry': Scaling(
-                V3(0.5, 0.5, 1),
-                Sphere(V3(4, -0.8, 0.8), 0.5)
-            ),
+            'geometry': Sphere(V3(4, 3, 0.8), 0.5),
             'material': 'mirror'
         },
         {
@@ -49,7 +46,7 @@ scene = {
         'mirror': UniformMaterial(V3(0, 0, 0), reflectivity = 1.0)
     },
     'lighting': [
-        AmbientLight(0.1),
+        AmbientLight(0.0),
         DirectionalLight(V3(1, 1, -1))
     ]
 }

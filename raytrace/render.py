@@ -45,6 +45,15 @@ class CollisionResult:
         result.u = self.u
         result.v = self.v
         return result
+    
+    def extract(self, mask):
+        result = CollisionResult(np.sum(mask))
+        result.mat_index = np.extract(mask, self.mat_index)
+        result.incd = self.incd.extract(mask)
+        result.norm = self.norm.extract(mask)
+        result.u = np.extract(mask, self.u)
+        result.v = np.extract(mask, self.v)
+        return result
 
 
 def collide(area, ray, scene):
@@ -70,18 +79,21 @@ def render(camera, scene, bounce = 4):
     material_list = list(scene['materials'])
     material_indeces = {m: i for i, m in enumerate(material_list)}
     
-    collisions = collide(area, ray, scene)
+    all_collisions = collide(area, ray, scene)
+    collision_mask = (all_collisions.incd.x != np.inf)
+    sub_area = np.sum(collision_mask)
+    collisions = all_collisions.extract(collision_mask)
     
     # lighting and texturing
     
-    lighting = V3(0, 0, 0).repeat(area)
+    lighting = V3(0, 0, 0).repeat(sub_area)
     for light in scene['lighting']:
         lighting += light.illuminate(scene, collisions)
     
-    matte_component = V3(0, 0, 0).repeat(area)
-    reflective_component = V3(0, 0, 0).repeat(area)
+    matte_component = V3(0, 0, 0).repeat(sub_area)
+    reflective_component = V3(0, 0, 0).repeat(sub_area)
     
-    frac_reflective = np.repeat([0.0], area)
+    frac_reflective = np.repeat([0.0], sub_area)
     for i, material_name in enumerate(material_list):
         mask = (collisions.mat_index == i)
         material = scene['materials'][material_name]
@@ -100,8 +112,11 @@ def render(camera, scene, bounce = 4):
         reflective_component_set = render(reflective_camera, scene, bounce - 1)
         reflective_component.place(reflective_mask, reflective_component_set)
     
+    sub_raster = V3(0, 0, 0).repeat(np.sum(collision_mask))
+    sub_raster += matte_component * lighting * (1.0 - frac_reflective)
+    sub_raster += reflective_component * frac_reflective
+    
     raster = V3(0, 0, 0).repeat(area)
-    raster += matte_component * lighting * (1.0 - frac_reflective)
-    raster += reflective_component * frac_reflective
+    raster.place(collision_mask, sub_raster)
     
     return raster.clip(0, 1)

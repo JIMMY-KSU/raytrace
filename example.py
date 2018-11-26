@@ -15,24 +15,16 @@ camera = CameraPerspective(origin, direction, dimensions, resolution)
 
 scene = {
     'objects': [
-        {
-            'geometry': Difference(
-                Intersection(
-                    Sphere(V3(4, 0, 0), 1),
-                    Sphere(V3(4, -1, 0), 1)
-                ),
-                Sphere(V3(4, -1, 0), 0.5)
+        Difference(
+            Intersection(
+                Sphere(V3(4, 0, 0), 1),
+                Sphere(V3(4, -1, 0), 1),
+                material = 'blue'
             ),
-            'material': 'green'
-        },
-        {
-            'geometry': Sphere(V3(4, 3, 0.8), 0.5),
-            'material': 'mirror'
-        },
-        {
-            'geometry': Ground(V3(0, 0, -20), V3(0, 0, 1)),
-            'material': 'checkered'
-        }
+            Sphere(V3(4, -1, 0), 0.5, material = 'green')
+        ),
+        Sphere(V3(4, 3, 0.8), 0.5, material = 'mirror'),
+        Ground(V3(0, 0, -20), V3(0, 0, 1), material = 'checkered')
     ],
     'materials': {
         'red': UniformMaterial(V3(1, 0, 0)),

@@ -11,7 +11,7 @@ class CollisionResult:
     
     def __init__(self, area):
         self.area = area
-        self.mat_index = np.repeat([-1], area)
+        self.mathash = np.repeat([0], area)
         self.incd = V3(np.inf, np.inf, np.inf).repeat(area)
         self.norm = V3(1, 0, 0).repeat(area)
         self.u = np.repeat([0.0], area)
@@ -24,14 +24,14 @@ class CollisionResult:
         np.place(self.v, mask, v)
         
     def copyfrom(self, mask, other):
-        np.copyto(self.mat_index, other.mat_index, where = mask)
+        np.copyto(self.mathash, other.mathash, where = mask)
         self.incd.copyfrom(other.incd, where = mask)
         self.norm.copyfrom(other.norm, where = mask)
         np.copyto(self.u, other.u, where = mask)
         np.copyto(self.v, other.v, where = mask)
     
-    def setMatIndex(self, mat_index):
-        self.mat_index = np.repeat([mat_index], self.area)
+    def setMatHash(self, mathash):
+        self.mathash = np.repeat([mathash], self.area)
     
     def takeNearer(self, other):
         mask = other.incd.normsq() < self.incd.normsq()
@@ -39,7 +39,7 @@ class CollisionResult:
     
     def transform(self, transform):
         result = CollisionResult(self.area)
-        result.mat_index = self.mat_index
+        result.mathash = self.mathash
         result.incd = transform.applyToDifference(self.incd)
         result.norm = transform.applyToNormal(self.norm)
         result.u = self.u
@@ -48,7 +48,7 @@ class CollisionResult:
     
     def extract(self, mask):
         result = CollisionResult(np.sum(mask))
-        result.mat_index = np.extract(mask, self.mat_index)
+        result.mathash = np.extract(mask, self.mathash)
         result.incd = self.incd.extract(mask)
         result.norm = self.norm.extract(mask)
         result.u = np.extract(mask, self.u)
@@ -58,17 +58,9 @@ class CollisionResult:
 
 def collide(area, ray, scene):
     nearest_collisions = CollisionResult(area)
-    
-    material_list = list(scene['materials'])
-    material_indeces = {m: i for i, m in enumerate(material_list)}
-    
-    # compute nearest intersections
-    
     for i, obj in enumerate(scene['objects']):
-        obj_collisions = obj['geometry'].intersections(ray)
-        obj_collisions.setMatIndex(material_indeces[obj['material']])
+        obj_collisions = obj.intersections(ray)
         nearest_collisions.takeNearer(obj_collisions)
-    
     return nearest_collisions
 
 
@@ -76,8 +68,7 @@ def render(camera, scene, bounce = 4):
     area = camera.area()
     ray = camera.rays()
     
-    material_list = list(scene['materials'])
-    material_indeces = {m: i for i, m in enumerate(material_list)}
+    materials = {hash(key): scene['materials'][key] for key in scene['materials']}
     
     all_collisions = collide(area, ray, scene)
     collision_mask = (all_collisions.incd.x != np.inf)
@@ -94,9 +85,9 @@ def render(camera, scene, bounce = 4):
     reflective_component = V3(0, 0, 0).repeat(sub_area)
     
     frac_reflective = np.repeat([0.0], sub_area)
-    for i, material_name in enumerate(material_list):
-        mask = (collisions.mat_index == i)
-        material = scene['materials'][material_name]
+    for material_hash in materials:
+        mask = (collisions.mathash == material_hash)
+        material = materials[material_hash]
         u = np.extract(mask, collisions.u)
         v = np.extract(mask, collisions.v)
         matte_component.place(mask, material.getColor(u, v))

@@ -25,10 +25,7 @@ class TestRender(unittest.TestCase):
         
         scene = {
             'objects': [
-                {
-                    'geometry': Sphere(V3(4, 0, 0), 1),
-                    'material': 'mat'
-                }
+                Sphere(V3(4, 0, 0), 1, material = 'mat')
             ],
             'materials': {
                 'mat': UniformMaterial(V3(1.0, 0.5, 0.25))
@@ -60,14 +57,8 @@ class TestRender(unittest.TestCase):
         
         scene = {
             'objects': [
-                {
-                    'geometry': Sphere(V3(4, 0, 0), 1),
-                    'material': 'mirror'
-                },
-                {
-                    'geometry': Sphere(V3(-4, 0, 0), 1),
-                    'material': 'mat'
-                }
+                Sphere(V3(4, 0, 0), 1, material = 'mirror'),
+                Sphere(V3(-4, 0, 0), 1, material = 'mat')
             ],
             'materials': {
                 'mat': UniformMaterial(V3(1.0, 0.5, 0.25)),

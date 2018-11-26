@@ -3,9 +3,21 @@ from .vector import *
 from .render import *
 
 
-class Ground:
+class Geometry:
+    def __init__(self, material=None):
+        if material is None:
+            self.material = 0
+        else:
+            self.material = hash(material)
+    def setMatHash(self, collisions):
+        if self.material != 0:
+            collisions.setMatHash(self.material)
+
+
+class Ground(Geometry):
     
-    def __init__(self, position, normal):
+    def __init__(self, position, normal, material=None):
+        super().__init__(material=material)
         self.normal = normal.unit()
         self.position = self.normal * position.dot(self.normal)
     
@@ -45,15 +57,18 @@ class Ground:
             collisions = CollisionResult(area)
             collisions.place(mask, incident_set + self.position, normal_set, u_set, v_set)
             
+            self.setMatHash(collisions)
+            
             return collisions
     
     def interior(self, point):
         return (point - self.position).dot(self.normal) < 0
 
 
-class Sphere:
+class Sphere(Geometry):
     
-    def __init__(self, center, radius):
+    def __init__(self, center, radius, material=None):
+        super().__init__(material=material)
         self.center = center
         self.radius = radius
         
@@ -95,6 +110,8 @@ class Sphere:
         collisions = CollisionResult(area)
         collisions.place(mask, incident_set, normal_set, u_set, v_set)
         
+        self.setMatHash(collisions)
+        
         return collisions
     
     def interior(self, point):
@@ -102,9 +119,10 @@ class Sphere:
         return x.normsq() < self.radius ** 2
 
 
-class Union:
+class Union(Geometry):
     
-    def __init__(self, fst, snd):
+    def __init__(self, fst, snd, material=None):
+        super().__init__(material=material)
         self.fst = fst
         self.snd = snd
     
@@ -113,6 +131,7 @@ class Union:
         collisions_snd = self.snd.intersections(ray, invert)
         collisions = collisions_fst
         collisions.takeNearer(collisions_snd)
+        self.setMatHash(collisions)
         return collisions
     
     def interior(self, point):
@@ -121,9 +140,10 @@ class Union:
         return np.logical_or(interior_fst, interior_snd)
 
 
-class Difference:
+class Difference(Geometry):
     
-    def __init__(self, positive, negative):
+    def __init__(self, positive, negative, material=None):
+        super().__init__(material=material)
         self.positive = positive
         self.negative = negative
     
@@ -139,6 +159,8 @@ class Difference:
         collisions = collisions_p
         collisions.takeNearer(collisions_n)
         
+        self.setMatHash(collisions)
+        
         return collisions
     
     def interior(self, point):
@@ -150,9 +172,10 @@ class Difference:
         )
 
 
-class Intersection:
+class Intersection(Geometry):
     
-    def __init__(self, fst, snd):
+    def __init__(self, fst, snd, material=None):
+        super().__init__(material=material)
         self.fst = fst
         self.snd = snd
     
@@ -170,6 +193,8 @@ class Intersection:
         mask = collisions_2.incd.normsq() < collisions_1.incd.normsq()
         collisions.copyfrom(mask, collisions_2)
         
+        self.setMatHash(collisions)
+        
         return collisions
     
     def interior(self, point):
@@ -178,12 +203,16 @@ class Intersection:
         return np.logical_and(in_fst, in_snd)
 
 
-class Transformation:
+class Transformation(Geometry):
+    
+    def __init__(self, material=None):
+        super().__init__(material=material)
     
     def intersections(self, ray, invert = False):
         ray_p = ray.transform(self.inverse)
         collisions_p = self.obj.intersections(ray_p, invert)
         collisions = collisions_p.transform(self.transform)
+        self.setMatHash(collisions)
         return collisions
     
     def interior(self, point):
@@ -193,7 +222,8 @@ class Transformation:
 
 class Translation(Transformation):
     
-    def __init__(self, delta, obj):
+    def __init__(self, delta, obj, material=None):
+        super().__init__(material=material)
         self.transform = TranslationHelper(delta)
         self.inverse = self.transform.inverse()
         self.obj = obj
@@ -201,7 +231,8 @@ class Translation(Transformation):
 
 class Scaling(Transformation):
     
-    def __init__(self, factor, obj):
+    def __init__(self, factor, obj, material=None):
+        super().__init__(material=material)
         self.transform = ScalingHelper(factor)
         self.inverse = self.transform.inverse()
         self.obj = obj
@@ -209,7 +240,8 @@ class Scaling(Transformation):
 
 class Rotation(Transformation):
     
-    def __init__(self, axisIndex, angle, obj):
+    def __init__(self, axisIndex, angle, obj, material=None):
+        super().__init__(material=material)
         self.transform = RotationHelper(axisIndex, angle)
         self.inverse = self.transform.inverse()
         self.obj = obj
